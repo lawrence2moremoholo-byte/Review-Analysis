@@ -1,3 +1,7 @@
+import sys
+import os
+# Add parent folder to Python path so backend is importable
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import streamlit as st
 import pandas as pd
 from backend.database import get_all_reviews, add_review
