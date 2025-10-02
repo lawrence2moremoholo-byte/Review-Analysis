@@ -1,48 +1,44 @@
-import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import streamlit as st
 import pandas as pd
-from backend.database import get_all_reviews
+from backend.database import get_all_reviews, add_review
 from backend.ai_analysis import analyze_review
-from backend.scraper_google import get_google_reviews
-from backend.scraper_hellopeter import scrape_hellopeter
-from dashboard.styles import *
 
-st.set_page_config(page_title="MetaWell AI Dashboard", layout="wide")
+st.set_page_config(
+    page_title="MetaWell AI Dashboard",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
-st.markdown(f"<h1 style='color:{PRIMARY_COLOR}'>MetaWell AI Dashboard</h1>", unsafe_allow_html=True)
-st.markdown("---")
-
-# Collect reviews section
-with st.expander("Collect Reviews"):
-    place_id = st.text_input("Enter Google Place ID:")
-    hellopeter_url = st.text_input("Enter HelloPeter Business URL:")
-    if st.button("Fetch Reviews"):
-        if place_id:
-            get_google_reviews(place_id)
-        if hellopeter_url:
-            scrape_hellopeter(hellopeter_url)
-        st.success("Reviews collected successfully!")
+st.title("📊 MetaWell AI - Customer Review Insights")
 
 # Load reviews
 reviews = get_all_reviews()
 df = pd.DataFrame(reviews)
 
-# Analyze reviews
-if st.button("Analyze All Reviews") and not df.empty:
-    for index, row in df.iterrows():
-        analyze_review(row['id'], row['text'])
-    st.success("Analysis complete!")
-    df = pd.DataFrame(get_all_reviews())
+if not df.empty:
+    st.subheader("Overall Sentiment")
+    sentiment_counts = df["sentiment"].value_counts(normalize=True) * 100
+    st.bar_chart(sentiment_counts)
 
-# Display visual insights
-if not df.empty and 'category' in df.columns and 'sentiment' in df.columns:
-    st.subheader("Sentiment Distribution")
-    st.bar_chart(df['sentiment'].value_counts(normalize=True) * 100)
+    st.subheader("Category Breakdown")
+    category_counts = df["category"].value_counts(normalize=True) * 100
+    st.bar_chart(category_counts)
 
-    st.subheader("Complaint Categories")
-    st.bar_chart(df['category'].value_counts(normalize=True) * 100)
+    st.subheader("Raw Reviews")
+    st.dataframe(df)
+else:
+    st.info("No reviews found yet. Add one below!")
 
-    st.subheader("Latest Reviews")
-    st.dataframe(df[['author','text','category','sentiment']])
+# Manual test input
+st.subheader("Test Review Analysis")
+new_review = st.text_area("Enter a customer review")
+if st.button("Analyze"):
+    result = analyze_review(new_review)
+    st.write("### Result")
+    st.write(f"Sentiment: **{result['sentiment']}**")
+    st.write(f"Category: **{result['category']}**")
 
+    # Save to DB
+    add_review(new_review, result["sentiment"], result["category"])
+    st.success("✅ Saved to database!")
