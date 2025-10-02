@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import streamlit as st
 from backend.database import get_all_reviews, add_review
 from backend.ai_analysis import analyze_review
