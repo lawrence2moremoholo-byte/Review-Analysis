@@ -1,14 +1,25 @@
 from supabase import create_client
 from backend.config import SUPABASE_URL, SUPABASE_KEY
 
-# Create Supabase client from environment variables
+# Initialize Supabase client
 supabase = create_client("https://zgennqckgzokxnfwpsxh.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnZW5ucWNrZ3pva3huZndwc3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzcyMDMsImV4cCI6MjA3NDk1MzIwM30.HAou28iXuAGgGg6gqJF4AowNtSJjNOoBsHqFi6OAURc")
 
-def insert_review(review_data: dict):
-    supabase.table("reviews").insert(review_data).execute()
-
-def update_review(review_id, update_data: dict):
-    supabase.table("reviews").update(update_data).eq("id", review_id).execute()
-
 def get_all_reviews():
-    return supabase.table("reviews").select("*").execute().data
+    """Fetch all reviews from the database."""
+    response = supabase.table("reviews").select("*").execute()
+    return response.data or []
+
+def add_review(review_text, sentiment, category):
+    """Insert a new review into the database."""
+    supabase.table("reviews").insert({
+        "text": review_text,
+        "sentiment": sentiment,
+        "category": category
+    }).execute()
+
+def update_review(review_id, sentiment, category):
+    """Update analysis results for a review."""
+    supabase.table("reviews").update({
+        "sentiment": sentiment,
+        "category": category
+    }).eq("id", review_id).execute()
