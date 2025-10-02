@@ -1,0 +1,7 @@
+[theme]
+base="dark"
+primaryColor="#00f5d4"  # neon turquoise
+backgroundColor="#0d1117"  # deep dark gray
+secondaryBackgroundColor="#161b22"  # slightly lighter dark
+textColor="#e6edf3"  # soft white
+font="sans serif"
