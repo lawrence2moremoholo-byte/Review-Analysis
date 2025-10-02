@@ -1,8 +1,17 @@
-import openai
+from openai import OpenAI
 from backend.config import OPENAI_API_KEY
-from backend.database import update_review
 
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(api_key=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)
+
+def analyze_review(review_text):
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "user", "content": review_text}
+        ]
+    )
+    return response.choices[0].message.content
+
 
 def analyze_review(review_text, review_id=None):
     """
