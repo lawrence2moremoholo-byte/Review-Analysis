@@ -1,12 +1,12 @@
 import os
 
-# Google Places API
-GOOGLE_API_KEY = os.getenv("AIzaSyBkIAZJwSbbDokzP3lpvfU2Ya2qKOjX_Oo")
-
 # Supabase
 SUPABASE_URL = os.getenv("https://zgennqckgzokxnfwpsxh.supabase.co")
 SUPABASE_KEY = os.getenv("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnZW5ucWNrZ3pva3huZndwc3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzcyMDMsImV4cCI6MjA3NDk1MzIwM30.HAou28iXuAGgGg6gqJF4AowNtSJjNOoBsHqFi6OAURc")
 
-# OpenAI
-OPENAI_API_KEY = os.getenv("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")
+# Google Places API
+GOOGLE_API_KEY = os.getenv("AIzaSyBkIAZJwSbbDokzP3lpvfU2Ya2qKOjX_Oo")
 
+# OpenAI
+OPENAI_API_KEY = os.getenv("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
+")
