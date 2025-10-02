@@ -9,13 +9,14 @@ def get_all_reviews():
     response = supabase.table("reviews").select("*").execute()
     return response.data or []
 
-def add_review(review_text, sentiment, category):
-    """Insert a new review into the database."""
-    supabase.table("reviews").insert({
-        "text": review_text,
+def add_review(review, sentiment, category, ai_response=""):
+    data = {
+        "review": review,
         "sentiment": sentiment,
-        "category": category
-    }).execute()
+        "category": category,
+        "ai_response": ai_response
+    }
+    supabase.table("reviews").insert(data).execute()
 
 def update_review(review_id, sentiment, category):
     """Update analysis results for a review."""
