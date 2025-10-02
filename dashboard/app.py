@@ -1,3 +1,50 @@
+import streamlit as st
+
+st.markdown("""
+    <style>
+        /* Bigger title */
+        .css-10trblm {
+            font-size: 2.2rem !important;
+            color: #00f5d4 !important;
+            font-weight: bold;
+        }
+        
+        /* Cards for reviews */
+        .review-card {
+            background: linear-gradient(145deg, #161b22, #0d1117);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.6);
+        }
+
+        /* Buttons */
+        .stButton>button {
+            background-color: #00f5d4 !important;
+            color: #0d1117 !important;
+            font-weight: bold;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+        .stButton>button:hover {
+            background-color: #0affb8 !important;
+            transform: scale(1.03);
+        }
+
+        /* Input boxes */
+        .stTextArea textarea {
+            background: #161b22 !important;
+            border-radius: 12px !important;
+            color: #e6edf3 !important;
+        }
+
+        /* Success / Error messages */
+        .stAlert {
+            border-radius: 12px !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
