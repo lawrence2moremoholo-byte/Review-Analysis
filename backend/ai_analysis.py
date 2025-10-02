@@ -1,16 +1,28 @@
 from openai import OpenAI
 from backend.config import OPENAI_API_KEY
 
-client = OpenAI(api_key="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")
+# ✅ Use the new OpenAI client
+client = OpenAI(api_key=OPENAI_API_KEY)
 
-def analyze_review(review_text):
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": review_text}
-        ]
-    )
-    return response.choices[0].message.content
+def analyze_review(review_text: str):
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an AI that analyzes customer reviews."},
+                {"role": "user", "content": review_text}
+            ]
+        )
+
+        ai_text = response.choices[0].message.content
+
+        return {
+            "sentiment": "Positive" if "good" in review_text.lower() else "Negative",
+            "category": "Service" if "service" in review_text.lower() else "Other",
+            "ai_response": ai_text
+        }
+    except Exception as e:
+        return {"error": f"❌ Error analyzing review: {e}"}
 
 
 def analyze_review(review_text, review_id=None):
