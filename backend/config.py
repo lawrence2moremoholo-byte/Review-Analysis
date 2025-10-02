@@ -8,5 +8,5 @@ SUPABASE_KEY = os.getenv("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 GOOGLE_API_KEY = os.getenv("AIzaSyBkIAZJwSbbDokzP3lpvfU2Ya2qKOjX_Oo")
 
 # OpenAI
-OPENAI_API_KEY = os.getenv("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
+OPENAI_API_KEY = os.getenv("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
 ")
