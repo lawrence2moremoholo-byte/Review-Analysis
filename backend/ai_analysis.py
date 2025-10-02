@@ -17,7 +17,7 @@ Review: "{review_text}"
 """
     try:
         response = openai.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-5",
             messages=[{"role": "user", "content": prompt}],
             temperature=0
         )
