@@ -1,95 +1,117 @@
 import streamlit as st
+from backend.database import get_all_reviews, add_review
+from backend.ai_analysis import analyze_review
+
+# =====================================================
+# 🎨 Custom Styling for Modern AI Dashboard
+# =====================================================
+st.set_page_config(
+    page_title="📊 MetaWell AI - Customer Review Insights",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 st.markdown("""
     <style>
-        /* Bigger title */
-        .css-10trblm {
-            font-size: 2.2rem !important;
+        /* Title */
+        .css-10trblm, .css-1avcm0n {
+            font-size: 2.4rem !important;
             color: #00f5d4 !important;
-            font-weight: bold;
+            font-weight: 800 !important;
         }
-        
-        /* Cards for reviews */
+
+        /* Subheaders */
+        h2, h3 {
+            color: #4af1c9 !important;
+        }
+
+        /* Review Cards */
         .review-card {
             background: linear-gradient(145deg, #161b22, #0d1117);
             border-radius: 16px;
             padding: 1rem;
             margin-bottom: 1rem;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.6);
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
+            transition: 0.3s;
+        }
+        .review-card:hover {
+            transform: scale(1.01);
+            box-shadow: 0px 6px 20px rgba(0,0,0,0.7);
         }
 
         /* Buttons */
         .stButton>button {
-            background-color: #00f5d4 !important;
+            background: linear-gradient(135deg, #00f5d4, #0affb8) !important;
             color: #0d1117 !important;
-            font-weight: bold;
-            border-radius: 12px;
+            font-weight: bold !important;
+            border-radius: 12px !important;
+            border: none;
+            padding: 0.6rem 1.2rem;
             transition: 0.3s;
         }
         .stButton>button:hover {
-            background-color: #0affb8 !important;
-            transform: scale(1.03);
+            background: linear-gradient(135deg, #0affb8, #00f5d4) !important;
+            transform: translateY(-2px);
         }
 
-        /* Input boxes */
-        .stTextArea textarea {
+        /* Inputs */
+        .stTextArea textarea, .stTextInput input {
             background: #161b22 !important;
-            border-radius: 12px !important;
+            border-radius: 10px !important;
             color: #e6edf3 !important;
+            border: 1px solid #30363d !important;
         }
 
-        /* Success / Error messages */
+        /* Alerts */
         .stAlert {
             border-radius: 12px !important;
         }
     </style>
 """, unsafe_allow_html=True)
 
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-import streamlit as st
-import pandas as pd
-from backend.database import get_all_reviews, add_review
-from backend.ai_analysis import analyze_review
-
-st.set_page_config(
-    page_title="MetaWell AI Dashboard",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
+# =====================================================
+# 📊 Main Dashboard
+# =====================================================
 st.title("📊 MetaWell AI - Customer Review Insights")
+st.write("Gain AI-powered insights from customer feedback across categories like **Network, Billing, Delivery, Service, Fraud, and more.**")
 
-# Load reviews
+# =====================================================
+# 🗂 Show Reviews Section
+# =====================================================
+st.subheader("📝 Customer Reviews")
 reviews = get_all_reviews()
-df = pd.DataFrame(reviews)
 
-if not df.empty:
-    st.subheader("Overall Sentiment")
-    sentiment_counts = df["sentiment"].value_counts(normalize=True) * 100
-    st.bar_chart(sentiment_counts)
-
-    st.subheader("Category Breakdown")
-    category_counts = df["category"].value_counts(normalize=True) * 100
-    st.bar_chart(category_counts)
-
-    st.subheader("Raw Reviews")
-    st.dataframe(df)
-else:
+if not reviews:
     st.info("No reviews found yet. Add one below!")
+else:
+    for r in reviews:
+        st.markdown(f"""
+            <div class="review-card">
+                <b style="color:#00f5d4;">{r['category']} | {r['sentiment']}</b><br>
+                {r['text']} <br>
+                <small style="color: #8b949e;">{r['created_at']}</small>
+            </div>
+        """, unsafe_allow_html=True)
 
-# Manual test input
-st.subheader("Test Review Analysis")
-new_review = st.text_area("Enter a customer review")
-if st.button("Analyze"):
-    result = analyze_review(new_review)
-    st.write("### Result")
-    st.write(f"Sentiment: **{result['sentiment']}**")
-    st.write(f"Category: **{result['category']}**")
+# =====================================================
+# ➕ Add New Review Section
+# =====================================================
+st.subheader("➕ Add a New Review")
 
-    # Save to DB
-    add_review(new_review, result["sentiment"], result["category"])
-    st.success("✅ Saved to database!")
+with st.form("add_review_form"):
+    new_review = st.text_area("Enter a customer review", placeholder="Type your review here...")
+    submitted = st.form_submit_button("Analyze & Add")
+
+    if submitted and new_review.strip():
+        try:
+            # Analyze review with AI
+            result = analyze_review(new_review)
+            sentiment = result["sentiment"]
+            category = result["category"]
+
+            # Save to database
+            add_review(new_review, sentiment, category)
+
+            st.success(f"✅ Review added! Sentiment: **{sentiment}**, Category: **{category}**")
+        except Exception as e:
+            st.error(f"❌ Error analyzing review: {str(e)}")
