@@ -1,68 +1,60 @@
+# backend/ai_analysis.py
+
+import os
 from openai import OpenAI
+
 from backend.config import OPENAI_API_KEY
 
-# ✅ Use the new OpenAI client
+# Initialize OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def analyze_review(review_text: str):
+
+def analyze_review(review_text: str) -> dict:
+    """
+    Analyze a customer review using OpenAI:
+    - Sentiment: Positive, Negative, Neutral
+    - Category: Billing, Network, Service, Fraud, Delivery, Other
+    - AI Response: Suggested reply for company
+    """
+
+    prompt = f"""
+    You are an AI assistant for customer review analysis.
+    Analyze the following customer review:
+
+    "{review_text}"
+
+    1. Determine the sentiment: Positive, Negative, or Neutral.
+    2. Determine the category: Billing, Network, Service, Fraud, Delivery, or Other.
+    3. Suggest a professional response for the company.
+
+    Respond in JSON format exactly like this:
+    {{
+        "sentiment": "<Positive/Negative/Neutral>",
+        "category": "<Billing/Network/Service/Fraud/Delivery/Other>",
+        "ai_response": "<Suggested response>"
+    }}
+    """
+
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are an AI that analyzes customer reviews."},
-                {"role": "user", "content": review_text}
-            ]
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0
         )
 
-        ai_text = response.choices[0].message.content
+        # Extract AI output
+        content = response.choices[0].message.content.strip()
 
-        return {
-            "sentiment": "Positive" if "good" in review_text.lower() else "Negative",
-            "category": "Service" if "service" in review_text.lower() else "Other",
-            "ai_response": ai_text
-        }
+        # Parse as dict
+        import json
+        analysis = json.loads(content)
+        return analysis
+
     except Exception as e:
-        return {"error": f"❌ Error analyzing review: {e}"}
+        print(f"❌ Error analyzing review: {e}")
+        return {
+            "sentiment": "Unknown",
+            "category": "Other",
+            "ai_response": ""
+        }
 
-
-def analyze_review(review_text, review_id=None):
-    """
-    Analyze sentiment and category of a review using OpenAI.
-    If review_id is provided, update the database.
-    """
-    prompt = f"""
-    Analyze this customer review. 
-    1. Sentiment: Positive, Negative, or Neutral.
-    2. Category: Billing, Network, Service, Fraud, Delivery, Other.
-    
-    Review: "{review_text}"
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a customer review analysis AI."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-
-    result_text = response["choices"][0]["message"]["content"].strip()
-
-    # Basic parsing
-    sentiment = "Neutral"
-    category = "Other"
-
-    if "Positive" in result_text:
-        sentiment = "Positive"
-    elif "Negative" in result_text:
-        sentiment = "Negative"
-
-    for cat in ["Billing", "Network", "Service", "Fraud", "Delivery"]:
-        if cat.lower() in result_text.lower():
-            category = cat
-            break
-
-    if review_id:
-        update_review(review_id, sentiment, category)
-
-    return {"sentiment": sentiment, "category": category}
